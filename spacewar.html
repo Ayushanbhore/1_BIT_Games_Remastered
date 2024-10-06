@@ -13,49 +13,282 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            color: white;
         }
 
         canvas {
             background-color: #111;
+            display: block;
+        }
+
+        #rotate-message {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        #rotate-message h2 {
+            font-size: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
-    <canvas id="spacewarCanvas" width="600" height="400"></canvas>
+    <canvas id="spacewarCanvas" width="800" height="600"></canvas>
+    <div id="rotate-message">
+        <h2>Please rotate your device to landscape for the best experience.</h2>
+    </div>
 
     <script>
         const canvas = document.getElementById('spacewarCanvas');
         const context = canvas.getContext('2d');
-        const ship = { x: 300, y: 200, size: 10, angle: 0 };
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp') ship.y -= 10;
-            if (e.key === 'ArrowDown') ship.y += 10;
-            if (e.key === 'ArrowLeft') ship.angle -= 0.1;
-            if (e.key === 'ArrowRight') ship.angle += 0.1;
-        });
+        const ship1 = {
+            x: canvas.width / 4,
+            y: canvas.height / 2,
+            angle: 0,
+            speed: 0,
+            size: 15,
+            bullets: [],
+            thrust: 0.1,
+            friction: 0.98,
+            color: 'white'
+        };
 
-        function drawShip() {
+        const ship2 = {
+            x: (canvas.width / 4) * 3,
+            y: canvas.height / 2,
+            angle: Math.PI,
+            speed: 0,
+            size: 15,
+            bullets: [],
+            thrust: 0.1,
+            friction: 0.98,
+            color: 'blue'
+        };
+
+        const bulletSpeed = 5;
+        let gameOver = false;
+
+        const keys = {
+            ship1: {
+                left: false,
+                right: false,
+                thrust: false,
+                shoot: false
+            },
+            ship2: {
+                left: false,
+                right: false,
+                thrust: false,
+                shoot: false
+            }
+        };
+
+        // Draw ship
+        function drawShip(ship) {
             context.save();
             context.translate(ship.x, ship.y);
             context.rotate(ship.angle);
             context.beginPath();
             context.moveTo(0, -ship.size);
-            context.lineTo(-ship.size, ship.size);
-            context.lineTo(ship.size, ship.size);
+            context.lineTo(ship.size / 2, ship.size);
+            context.lineTo(-ship.size / 2, ship.size);
             context.closePath();
-            context.strokeStyle = 'white';
+            context.strokeStyle = ship.color;
             context.stroke();
             context.restore();
         }
 
+        // Move the ship
+        function moveShip(ship, controls) {
+            // Rotate the ship
+            if (controls.left) {
+                ship.angle -= 0.1;
+            }
+            if (controls.right) {
+                ship.angle += 0.1;
+            }
+
+            // Apply thrust
+            if (controls.thrust) {
+                ship.speed += ship.thrust;
+            } else {
+                ship.speed *= ship.friction; // Apply friction
+            }
+
+            // Move the ship forward based on speed and angle
+            ship.x += Math.cos(ship.angle) * ship.speed;
+            ship.y += Math.sin(ship.angle) * ship.speed;
+
+            // Wrap around edges of screen
+            if (ship.x < 0) ship.x = canvas.width;
+            if (ship.x > canvas.width) ship.x = 0;
+            if (ship.y < 0) ship.y = canvas.height;
+            if (ship.y > canvas.height) ship.y = 0;
+        }
+
+        // Draw bullets
+        function drawBullets(ship) {
+            context.fillStyle = ship.color;
+            ship.bullets.forEach(bullet => {
+                context.beginPath();
+                context.arc(bullet.x, bullet.y, 2, 0, Math.PI * 2);
+                context.fill();
+            });
+        }
+
+        // Move bullets
+        function moveBullets(ship) {
+            ship.bullets.forEach((bullet, index) => {
+                bullet.x += bullet.vx;
+                bullet.y += bullet.vy;
+
+                // Remove bullets that go off-screen
+                if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+                    ship.bullets.splice(index, 1);
+                }
+            });
+        }
+
+        // Shoot a bullet
+        function shootBullet(ship) {
+            const bullet = {
+                x: ship.x,
+                y: ship.y,
+                vx: Math.cos(ship.angle) * bulletSpeed,
+                vy: Math.sin(ship.angle) * bulletSpeed
+            };
+            ship.bullets.push(bullet);
+        }
+
+        // Check for collisions between bullets and ships
+        function checkCollisions() {
+            ship1.bullets.forEach((bullet, bulletIndex) => {
+                const dist = Math.hypot(bullet.x - ship2.x, bullet.y - ship2.y);
+                if (dist < ship2.size) {
+                    // Bullet hit ship2
+                    gameOver = true;
+                }
+            });
+
+            ship2.bullets.forEach((bullet, bulletIndex) => {
+                const dist = Math.hypot(bullet.x - ship1.x, bullet.y - ship1.y);
+                if (dist < ship1.size) {
+                    // Bullet hit ship1
+                    gameOver = true;
+                }
+            });
+        }
+
+        // Reset game
+        function resetGame() {
+            ship1.x = canvas.width / 4;
+            ship1.y = canvas.height / 2;
+            ship1.angle = 0;
+            ship1.speed = 0;
+            ship1.bullets = [];
+
+            ship2.x = (canvas.width / 4) * 3;
+            ship2.y = canvas.height / 2;
+            ship2.angle = Math.PI;
+            ship2.speed = 0;
+            ship2.bullets = [];
+
+            gameOver = false;
+        }
+
+        // Game loop
         function gameLoop() {
+            if (gameOver) {
+                context.fillStyle = 'white';
+                context.font = '30px Arial';
+                context.fillText('Game Over', canvas.width / 2 - 70, canvas.height / 2);
+                if (confirm('Game Over! Restart?')) {
+                    resetGame();
+                }
+                return;
+            }
+
             context.clearRect(0, 0, canvas.width, canvas.height);
-            drawShip();
+
+            moveShip(ship1, keys.ship1);
+            moveShip(ship2, keys.ship2);
+
+            moveBullets(ship1);
+            moveBullets(ship2);
+
+            checkCollisions();
+
+            drawShip(ship1);
+            drawShip(ship2);
+
+            drawBullets(ship1);
+            drawBullets(ship2);
+
             requestAnimationFrame(gameLoop);
         }
 
+        // Event listeners for controls
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                // Ship 1 controls (WASD)
+                case 'a': keys.ship1.left = true; break;
+                case 'd': keys.ship1.right = true; break;
+                case 'w': keys.ship1.thrust = true; break;
+                case 's': keys.ship1.shoot = true; shootBullet(ship1); break;
+
+                // Ship 2 controls (Arrow keys)
+                case 'ArrowLeft': keys.ship2.left = true; break;
+                case 'ArrowRight': keys.ship2.right = true; break;
+                case 'ArrowUp': keys.ship2.thrust = true; break;
+                case 'ArrowDown': keys.ship2.shoot = true; shootBullet(ship2); break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            switch (e.key) {
+                // Ship 1 controls (WASD)
+                case 'a': keys.ship1.left = false; break;
+                case 'd': keys.ship1.right = false; break;
+                case 'w': keys.ship1.thrust = false; break;
+                case 's': keys.ship1.shoot = false; break;
+
+                // Ship 2 controls (Arrow keys)
+                case 'ArrowLeft': keys.ship2.left = false; break;
+                case 'ArrowRight': keys.ship2.right = false; break;
+                case 'ArrowUp': keys.ship2.thrust = false; break;
+                case 'ArrowDown': keys.ship2.shoot = false; break;
+            }
+        });
+
+        // Orientation detection and rotate message
+        function checkOrientation() {
+            const rotateMessage = document.getElementById('rotate-message');
+            if (window.innerHeight > window.innerWidth) {
+                rotateMessage.style.display = 'flex';
+            } else {
+                rotateMessage.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        document.addEventListener('DOMContentLoaded', checkOrientation);
+
+        // Start the game
+        resetGame();
         gameLoop();
     </script>
 </body>

@@ -8,65 +8,214 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
             color: white;
         }
 
         canvas {
-            background-color: #333;
+            background-color: #222;
+            display: block;
+        }
+
+        #rotate-message {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        #rotate-message h2 {
+            font-size: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
         }
     </style>
 </head>
 <body>
-    <canvas id="gwCanvas" width="300" height="200"></canvas>
+    <canvas id="gwCanvas" width="300" height="400"></canvas>
+    <div id="rotate-message">
+        <h2>Please rotate your device to landscape for the best experience.</h2>
+    </div>
 
     <script>
         const canvas = document.getElementById('gwCanvas');
         const context = canvas.getContext('2d');
 
-        let player = { x: 0, y: 180, width: 20, height: 20 };
+        // Player and obstacle objects
+        const player = { x: 140, y: 350, width: 20, height: 20, speed: 4 };
         let obstacles = [];
+        const obstacleSpeed = 2;
+        let score = 0;
+        let gameOver = false;
 
+        // Control state
+        let leftPressed = false;
+        let rightPressed = false;
+
+        // Touch controls for mobile
+        let touchStartX = 0;
+
+        // Event listeners for keyboard and touch controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') leftPressed = true;
+            if (e.key === 'ArrowRight') rightPressed = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft') leftPressed = false;
+            if (e.key === 'ArrowRight') rightPressed = false;
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            const touchEndX = e.touches[0].clientX;
+            if (touchEndX < touchStartX) {
+                leftPressed = true;
+                rightPressed = false;
+            } else if (touchEndX > touchStartX) {
+                rightPressed = true;
+                leftPressed = false;
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            leftPressed = false;
+            rightPressed = false;
+        });
+
+        // Player movement
+        function movePlayer() {
+            if (leftPressed && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (rightPressed && player.x + player.width < canvas.width) {
+                player.x += player.speed;
+            }
+        }
+
+        // Generate new obstacles
+        function generateObstacles() {
+            if (Math.random() > 0.98) {
+                obstacles.push({ x: Math.random() * (canvas.width - 20), y: 0, width: 20, height: 20 });
+            }
+        }
+
+        // Move obstacles
+        function moveObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.y += obstacleSpeed;
+            });
+
+            // Remove off-screen obstacles
+            obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
+        }
+
+        // Draw player
         function drawPlayer() {
             context.fillStyle = 'white';
             context.fillRect(player.x, player.y, player.width, player.height);
         }
 
-        function generateObstacles() {
-            if (Math.random() > 0.98) {
-                const obstacle = { x: canvas.width, y: 180, width: 20, height: 20 };
-                obstacles.push(obstacle);
-            }
-        }
-
+        // Draw obstacles
         function drawObstacles() {
+            context.fillStyle = 'red';
             obstacles.forEach(obstacle => {
-                context.fillStyle = 'red';
                 context.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
             });
         }
 
-        function moveObstacles() {
+        // Check for collisions
+        function checkCollisions() {
             obstacles.forEach(obstacle => {
-                obstacle.x -= 2;
+                if (player.x < obstacle.x + obstacle.width &&
+                    player.x + player.width > obstacle.x &&
+                    player.y < obstacle.y + obstacle.height &&
+                    player.y + player.height > obstacle.y) {
+                    gameOver = true;
+                }
             });
-            obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
         }
 
+        // Reset the game
+        function resetGame() {
+            player.x = 140;
+            player.y = 350;
+            obstacles = [];
+            score = 0;
+            gameOver = false;
+        }
+
+        // Display game over message
+        function displayGameOver() {
+            context.fillStyle = 'white';
+            context.font = '20px Arial';
+            context.fillText('Game Over', canvas.width / 2 - 50, canvas.height / 2);
+            context.fillText('Score: ' + score, canvas.width / 2 - 50, canvas.height / 2 + 30);
+        }
+
+        // Main game loop
         function gameLoop() {
+            if (gameOver) {
+                displayGameOver();
+                if (confirm('Game Over! Restart?')) {
+                    resetGame();
+                }
+                return;
+            }
+
             context.clearRect(0, 0, canvas.width, canvas.height);
-            drawPlayer();
+
+            movePlayer();
             generateObstacles();
-            drawObstacles();
             moveObstacles();
+            checkCollisions();
+
+            drawPlayer();
+            drawObstacles();
+
+            score++;
+            context.fillStyle = 'white';
+            context.font = '16px Arial';
+            context.fillText('Score: ' + score, 10, 20);
+
             requestAnimationFrame(gameLoop);
         }
 
+        // Start the game
         gameLoop();
+
+        // Orientation detection and rotate message
+        function checkOrientation() {
+            const rotateMessage = document.getElementById('rotate-message');
+            if (window.innerHeight > window.innerWidth) {
+                rotateMessage.style.display = 'flex';
+            } else {
+                rotateMessage.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        document.addEventListener('DOMContentLoaded', checkOrientation);
     </script>
 </body>
 </html>

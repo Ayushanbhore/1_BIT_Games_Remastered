@@ -59,13 +59,15 @@
             y: canvas.height - 40,
             width: 40,
             height: 20,
-            speed: 5,
+            speed: 7,
             bullets: []
         };
 
         const enemies = [];
-        const enemySpeed = 2;
-        const bulletSpeed = 7;
+        const enemySpeed = 1; // Slower enemies
+        const bulletSpeed = 5; // Slower bullets
+        const cooldownTime = 300; // 300ms shooting cooldown
+        let canShoot = true; // Shooting cooldown state
 
         let leftPressed = false;
         let rightPressed = false;
@@ -73,14 +75,15 @@
 
         // Create enemies
         function createEnemies() {
-            const rows = 5;
-            const cols = 8;
-            const spacing = 60;
+            const rows = 4;
+            const cols = 6;
+            const spacingX = 80; // Increased horizontal spacing
+            const spacingY = 60; // Increased vertical spacing
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
                     enemies.push({
-                        x: 50 + j * spacing,
-                        y: 50 + i * spacing,
+                        x: 50 + j * spacingX,
+                        y: 50 + i * spacingY,
                         width: 40,
                         height: 20
                     });
@@ -137,16 +140,17 @@
             player.bullets = player.bullets.filter(bullet => bullet.y > 0);
         }
 
-        // Handle shooting
+        // Handle shooting with cooldown
         function shootBullet() {
-            if (spacePressed) {
+            if (spacePressed && canShoot) {
                 player.bullets.push({
                     x: player.x + player.width / 2 - 2,
                     y: player.y - 10,
                     width: 4,
                     height: 10
                 });
-                spacePressed = false; // Prevent continuous shooting
+                canShoot = false;
+                setTimeout(() => canShoot = true, cooldownTime); // Apply cooldown
             }
         }
 
