@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legendary 1-Bit Games</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Legendary 1-Bit Games</h1>
+        <p>Select a game to play and learn about its history!</p>
+    </header>
+
+    <main class="game-grid">
+        <div class="game-option" onclick="launchGame('pong')">
+            <div class="game-icon pong-icon"></div>
+            <h2>Pong</h2>
+        </div>
+        <div class="game-option" onclick="launchGame('tetris')">
+            <div class="game-icon tetris-icon"></div>
+            <h2>Tetris</h2>
+        </div>
+        <div class="game-option" onclick="launchGame('spacewar')">
+            <div class="game-icon spacewar-icon"></div>
+            <h2>Spacewar!</h2>
+        </div>
+        <div class="game-option" onclick="launchGame('snake')">
+            <div class="game-icon snake-icon"></div>
+            <h2>Snake</h2>
+        </div>
+        <div class="game-option" onclick="launchGame('asteroids')">
+            <div class="game-icon asteroids-icon"></div>
+            <h2>Asteroids</h2>
+        </div>
+        <div class="game-option" onclick="launchGame('game_watch')">
+            <div class="game-icon game-watch-icon"></div>
+            <h2>Game &amp; Watch</h2>
+        </div>
+        <div class="game-option" onclick="launchGame('galaxian')">
+            <div class="game-icon galaxian-icon"></div>
+            <h2>Galaxian</h2>
+        </div>
+        <div class="game-option" onclick="launchGame('tennis')">
+            <div class="game-icon tennis-icon"></div>
+            <h2>Tennis for Two</h2>
+        </div>
+    </main>
+
+    <div id="game-container" class="game-container">
+        <div class="info-panel left-panel">
+            <h3>Game Info</h3>
+            <div id="game-info"></div>
+        </div>
+        <div class="game-frame-container">
+            <iframe id="game-frame" src="" frameborder="0"></iframe>
+        </div>
+        <div class="info-panel right-panel">
+            <h3>Historical Impact</h3>
+            <div id="game-impact"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Legendary 1-Bit Games. All Rights Reserved.</p>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

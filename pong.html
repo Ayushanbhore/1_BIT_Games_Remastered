@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong - Legendary 1 Bit Games</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        canvas {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="pongCanvas" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('pongCanvas');
+        const context = canvas.getContext('2d');
+
+        const paddleHeight = 100;
+        const paddleWidth = 10;
+        const ballRadius = 10;
+
+        let paddle1Y = (canvas.height - paddleHeight) / 2;
+        let paddle2Y = (canvas.height - paddleHeight) / 2;
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height / 2;
+        let ballSpeedX = 5;
+        let ballSpeedY = 5;
+
+        let upPressed = false;
+        let downPressed = false;
+
+        // Function to draw the paddles
+        function drawPaddles() {
+            context.fillStyle = "white";
+            // Paddle 1
+            context.fillRect(0, paddle1Y, paddleWidth, paddleHeight);
+            // Paddle 2 (AI Paddle)
+            context.fillRect(canvas.width - paddleWidth, paddle2Y, paddleWidth, paddleHeight);
+        }
+
+        // Function to draw the ball
+        function drawBall() {
+            context.beginPath();
+            context.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+            context.fillStyle = "white";
+            context.fill();
+            context.closePath();
+        }
+
+        // Function to move paddles
+        function movePaddles() {
+            if (upPressed && paddle1Y > 0) {
+                paddle1Y -= 7;
+            } else if (downPressed && paddle1Y < canvas.height - paddleHeight) {
+                paddle1Y += 7;
+            }
+
+            // Simple AI for Paddle 2
+            if (paddle2Y + paddleHeight / 2 < ballY) {
+                paddle2Y += 5;
+            } else {
+                paddle2Y -= 5;
+            }
+        }
+
+        // Function to move the ball
+        function moveBall() {
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with top and bottom
+            if (ballY + ballRadius > canvas.height || ballY - ballRadius < 0) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Ball collision with paddles
+            if (ballX - ballRadius < paddleWidth && ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            } else if (ballX + ballRadius > canvas.width - paddleWidth && ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Ball out of bounds (reset position)
+            if (ballX + ballRadius < 0 || ballX - ballRadius > canvas.width) {
+                ballX = canvas.width / 2;
+                ballY = canvas.height / 2;
+                ballSpeedX = -ballSpeedX;
+            }
+        }
+
+        // Keydown event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') {
+                upPressed = true;
+            } else if (e.key === 'ArrowDown') {
+                downPressed = true;
+            }
+        });
+
+        // Keyup event listeners
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp') {
+                upPressed = false;
+            } else if (e.key === 'ArrowDown') {
+                downPressed = false;
+            }
+        });
+
+        // Add this after the key event listeners in the pong.js script
+
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            touchEndY = e.touches[0].clientY;
+            let touchDiff = touchEndY - touchStartY;
+
+            if (touchDiff < 0 && paddle1Y > 0) {
+                paddle1Y -= 10;
+            } else if (touchDiff > 0 && paddle1Y < canvas.height - paddleHeight) {
+                paddle1Y += 10;
+            }
+
+            touchStartY = touchEndY; // Reset for smooth continuous movement
+        });
+
+
+        // Main game loop
+        function gameLoop() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawPaddles();
+            drawBall();
+            movePaddles();
+            moveBall();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

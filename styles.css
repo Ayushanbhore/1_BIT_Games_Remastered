@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+    --bg-color: #000000;
+    --fg-color: #ffffff;
+    --accent-color: #ffffff;
+}
+
+body {
+    font-family: 'Press Start 2P', cursive;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--fg-color);
+    text-align: center;
+    line-height: 1.6;
+}
+
+header {
+    padding: 2rem 1rem;
+    border-bottom: 2px solid var(--fg-color);
+}
+
+h1 {
+    font-size: 2rem;
+    margin: 0 0 1rem;
+    text-transform: uppercase;
+}
+
+p {
+    margin: 0.5rem 0;
+}
+
+.game-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.game-option {
+    background-color: var(--bg-color);
+    border: 2px solid var(--fg-color);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.game-option:hover {
+    background-color: var(--fg-color);
+    color: var(--bg-color);
+}
+
+.game-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1rem;
+    background-color: var(--fg-color);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+}
+
+.game-option:hover .game-icon {
+    background-color: var(--bg-color);
+}
+
+.pong-icon { mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="2" y="4" width="2" height="16"/><rect x="20" y="4" width="2" height="16"/><circle cx="12" cy="12" r="2"/></svg>'); }
+.tetris-icon { mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="4" width="4" height="4"/><rect x="8" y="4" width="4" height="4"/><rect x="12" y="4" width="4" height="4"/><rect x="8" y="8" width="4" height="4"/></svg>'); }
+.spacewar-icon { mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/><path d="M12 2 L14 6 L10 6 Z"/><path d="M12 22 L14 18 L10 18 Z"/></svg>'); }
+.snake-icon { mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 4 H8 V8 H12 V12 H16 V16 H20 V20 H16 V16 H12 V12 H8 V8 H4 Z"/></svg>'); }
+.asteroids-icon { mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 15,8 21,9 16,14 18,20 12,17 6,20 8,14 3,9 9,8"/></svg>'); }
+.game-watch-icon { mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><rect x="6" y="4" width="12" height="8"/><circle cx="12" cy="16" r="2"/><rect x="8" y="14" width="2" height="2"/><rect x="14" y="14" width="2" height="2"/></svg>'); }
+.galaxian-icon { mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2 L14 6 L10 6 Z"/><rect x="10" y="6" width="4" height="4"/><rect x="6" y="10" width="12" height="2"/><rect x="4" y="12" width="4" height="4"/><rect x="16" y="12" width="4" height="4"/><rect x="10" y="16" width="4" height="6"/></svg>'); }
+.tennis-icon { mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2 C16 6, 16 18, 12 22"/><path d="M12 2 C8 6, 8 18, 12 22"/></svg>'); }
+
+h2 {
+    font-size: 1rem;
+    margin: 0.5rem 0 0;
+    text-transform: uppercase;
+}
+
+#game-container {
+    margin: 2rem 0;
+    display: none;
+}
+
+#game-frame {
+    width: 100%;
+    height: 80vh;
+    max-height: 600px;
+    border: 2px solid var(--fg-color);
+}
+
+footer {
+    padding: 1rem;
+    border-top: 2px solid var(--fg-color);
+    font-size: 0.75rem;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .game-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .game-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    h2 {
+        font-size: 0.8rem;
+    }
+}
