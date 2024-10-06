@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tennis for Two - Legendary 1 Bit Games</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        canvas {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="tennisCanvas" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('tennisCanvas');
+        const context = canvas.getContext('2d');
+        const paddle1 = { x: 50, y: 150, width: 10, height: 100 };
+        const paddle2 = { x: 740, y: 150, width: 10, height: 100 };
+        const ball = { x: 400, y: 200, radius: 10, dx: 4, dy: 4 };
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'w') paddle1.y -= 20;
+            if (e.key === 's') paddle1.y += 20;
+            if (e.key === 'ArrowUp') paddle2.y -= 20;
+            if (e.key === 'ArrowDown') paddle2.y += 20;
+        });
+
+        function drawPaddles() {
+            context.fillStyle = 'white';
+            context.fillRect(paddle1.x, paddle1.y, paddle1.width, paddle1.height);
+            context.fillRect(paddle2.x, paddle2.y, paddle2.width, paddle2.height);
+        }
+
+        function drawBall() {
+            context.beginPath();
+            context.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            context.fillStyle = 'white';
+            context.fill();
+            context.closePath();
+        }
+
+        function moveBall() {
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0) {
+                ball.dy = -ball.dy;
+            }
+
+            if (
+                (ball.x - ball.radius < paddle1.x + paddle1.width &&
+                 ball.y > paddle1.y && ball.y < paddle1.y + paddle1.height) ||
+                (ball.x + ball.radius > paddle2.x &&
+                 ball.y > paddle2.y && ball.y < paddle2.y + paddle2.height)
+            ) {
+                ball.dx = -ball.dx;
+            }
+
+            if (ball.x + ball.radius < 0 || ball.x - ball.radius > canvas.width) {
+                ball.x = canvas.width / 2;
+                ball.y = canvas.height / 2;
+                ball.dx = 4 * (Math.random() > 0.5 ? 1 : -1);
+                ball.dy = 4 * (Math.random() > 0.5 ? 1 : -1);
+            }
+        }
+
+        function gameLoop() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawPaddles();
+            drawBall();
+            moveBall();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

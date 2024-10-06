@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroids - Legendary 1 Bit Games</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+        }
+
+        canvas {
+            background-color: #222;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="asteroidsCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('asteroidsCanvas');
+        const context = canvas.getContext('2d');
+        const ship = { x: 400, y: 300, size: 15, angle: 0, speed: 0 };
+        const asteroids = [{ x: 100, y: 100, radius: 30 }, { x: 700, y: 200, radius: 50 }];
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') ship.angle -= 0.1;
+            if (e.key === 'ArrowRight') ship.angle += 0.1;
+            if (e.key === 'ArrowUp') ship.speed = 2;
+        });
+
+        function drawShip() {
+            context.save();
+            context.translate(ship.x, ship.y);
+            context.rotate(ship.angle);
+            context.beginPath();
+            context.moveTo(0, -ship.size);
+            context.lineTo(-ship.size, ship.size);
+            context.lineTo(ship.size, ship.size);
+            context.closePath();
+            context.strokeStyle = 'white';
+            context.stroke();
+            context.restore();
+        }
+
+        function drawAsteroids() {
+            asteroids.forEach(asteroid => {
+                context.beginPath();
+                context.arc(asteroid.x, asteroid.y, asteroid.radius, 0, Math.PI * 2);
+                context.strokeStyle = 'white';
+                context.stroke();
+            });
+        }
+
+        function moveShip() {
+            ship.x += Math.cos(ship.angle) * ship.speed;
+            ship.y += Math.sin(ship.angle) * ship.speed;
+        }
+
+        function gameLoop() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawShip();
+            drawAsteroids();
+            moveShip();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game & Watch - Legendary 1 Bit Games</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        canvas {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gwCanvas" width="300" height="200"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gwCanvas');
+        const context = canvas.getContext('2d');
+
+        let player = { x: 0, y: 180, width: 20, height: 20 };
+        let obstacles = [];
+
+        function drawPlayer() {
+            context.fillStyle = 'white';
+            context.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function generateObstacles() {
+            if (Math.random() > 0.98) {
+                const obstacle = { x: canvas.width, y: 180, width: 20, height: 20 };
+                obstacles.push(obstacle);
+            }
+        }
+
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                context.fillStyle = 'red';
+                context.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        function moveObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.x -= 2;
+            });
+            obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
+        }
+
+        function gameLoop() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            generateObstacles();
+            drawObstacles();
+            moveObstacles();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

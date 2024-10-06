@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spacewar! - Legendary 1 Bit Games</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        canvas {
+            background-color: #111;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="spacewarCanvas" width="600" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('spacewarCanvas');
+        const context = canvas.getContext('2d');
+        const ship = { x: 300, y: 200, size: 10, angle: 0 };
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp') ship.y -= 10;
+            if (e.key === 'ArrowDown') ship.y += 10;
+            if (e.key === 'ArrowLeft') ship.angle -= 0.1;
+            if (e.key === 'ArrowRight') ship.angle += 0.1;
+        });
+
+        function drawShip() {
+            context.save();
+            context.translate(ship.x, ship.y);
+            context.rotate(ship.angle);
+            context.beginPath();
+            context.moveTo(0, -ship.size);
+            context.lineTo(-ship.size, ship.size);
+            context.lineTo(ship.size, ship.size);
+            context.closePath();
+            context.strokeStyle = 'white';
+            context.stroke();
+            context.restore();
+        }
+
+        function gameLoop() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawShip();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

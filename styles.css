@@ -36,7 +36,7 @@ p {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 2rem;
     padding: 2rem;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -82,7 +82,7 @@ h2 {
     text-transform: uppercase;
 }
 
-#game-container {
+/* #game-container {
     margin: 2rem 0;
     display: none;
 }
@@ -92,7 +92,7 @@ h2 {
     height: 80vh;
     max-height: 600px;
     border: 2px solid var(--fg-color);
-}
+} */
 
 footer {
     padding: 1rem;
@@ -118,5 +118,65 @@ footer {
 
     h2 {
         font-size: 0.8rem;
+    }
+}
+
+/* New styles for the game container and info panels */
+.game-container {
+    display: none;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+    margin: 2rem 0;
+    height: 80vh;
+}
+
+.info-panel {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid var(--fg-color);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-panel h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.game-frame-container {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 1rem;
+}
+
+#game-frame {
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--fg-color);
+}
+
+#game-info, #game-impact {
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .game-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .info-panel {
+        margin-bottom: 1rem;
+    }
+
+    .game-frame-container {
+        margin: 1rem 0;
+        height: 50vh;
     }
 }

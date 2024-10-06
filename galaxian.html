@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxian - Legendary 1 Bit Games</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        canvas {
+            background-color: #111;
+        }
+
+        #rotate-message {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        #rotate-message h2 {
+            font-size: 1.5rem;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="galaxianCanvas" width="600" height="800"></canvas>
+    <div id="rotate-message">
+        <h2>Please rotate your device to landscape for the best experience.</h2>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('galaxianCanvas');
+        const context = canvas.getContext('2d');
+
+        const player = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 40,
+            width: 40,
+            height: 20,
+            speed: 5,
+            bullets: []
+        };
+
+        const enemies = [];
+        const enemySpeed = 2;
+        const bulletSpeed = 7;
+
+        let leftPressed = false;
+        let rightPressed = false;
+        let spacePressed = false;
+
+        // Create enemies
+        function createEnemies() {
+            const rows = 5;
+            const cols = 8;
+            const spacing = 60;
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    enemies.push({
+                        x: 50 + j * spacing,
+                        y: 50 + i * spacing,
+                        width: 40,
+                        height: 20
+                    });
+                }
+            }
+        }
+
+        // Draw player
+        function drawPlayer() {
+            context.fillStyle = 'white';
+            context.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        // Draw enemies
+        function drawEnemies() {
+            context.fillStyle = 'red';
+            enemies.forEach(enemy => {
+                context.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            });
+        }
+
+        // Draw bullets
+        function drawBullets() {
+            context.fillStyle = 'yellow';
+            player.bullets.forEach(bullet => {
+                context.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+
+        // Move player
+        function movePlayer() {
+            if (leftPressed && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (rightPressed && player.x + player.width < canvas.width) {
+                player.x += player.speed;
+            }
+        }
+
+        // Move enemies
+        function moveEnemies() {
+            enemies.forEach(enemy => {
+                enemy.y += enemySpeed;
+            });
+        }
+
+        // Move bullets
+        function moveBullets() {
+            player.bullets.forEach(bullet => {
+                bullet.y -= bulletSpeed;
+            });
+
+            // Remove off-screen bullets
+            player.bullets = player.bullets.filter(bullet => bullet.y > 0);
+        }
+
+        // Handle shooting
+        function shootBullet() {
+            if (spacePressed) {
+                player.bullets.push({
+                    x: player.x + player.width / 2 - 2,
+                    y: player.y - 10,
+                    width: 4,
+                    height: 10
+                });
+                spacePressed = false; // Prevent continuous shooting
+            }
+        }
+
+        // Check for collisions
+        function checkCollisions() {
+            for (let i = player.bullets.length - 1; i >= 0; i--) {
+                const bullet = player.bullets[i];
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    const enemy = enemies[j];
+
+                    if (
+                        bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y
+                    ) {
+                        // Collision detected, remove enemy and bullet
+                        enemies.splice(j, 1);
+                        player.bullets.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Game over detection
+        function checkGameOver() {
+            for (let enemy of enemies) {
+                if (enemy.y + enemy.height >= player.y) {
+                    alert("Game Over!");
+                    resetGame();
+                    break;
+                }
+            }
+        }
+
+        // Reset game
+        function resetGame() {
+            player.bullets = [];
+            enemies.length = 0;
+            createEnemies();
+        }
+
+        // Main game loop
+        function gameLoop() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawEnemies();
+            drawBullets();
+
+            movePlayer();
+            moveEnemies();
+            moveBullets();
+
+            checkCollisions();
+            checkGameOver();
+            shootBullet();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') leftPressed = true;
+            if (e.key === 'ArrowRight') rightPressed = true;
+            if (e.key === ' ') spacePressed = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft') leftPressed = false;
+            if (e.key === 'ArrowRight') rightPressed = false;
+            if (e.key === ' ') spacePressed = false;
+        });
+
+        // Handle touch events for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            touchEndX = e.touches[0].clientX;
+            const diffX = touchEndX - touchStartX;
+
+            if (diffX < -10) {
+                leftPressed = true;
+                rightPressed = false;
+            } else if (diffX > 10) {
+                rightPressed = true;
+                leftPressed = false;
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            leftPressed = false;
+            rightPressed = false;
+        });
+
+        // Orientation detection
+        function checkOrientation() {
+            const rotateMessage = document.getElementById('rotate-message');
+            if (window.innerHeight > window.innerWidth) {
+                rotateMessage.style.display = 'flex';
+            } else {
+                rotateMessage.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+        document.addEventListener('DOMContentLoaded', checkOrientation);
+
+        // Start the game
+        createEnemies();
+        gameLoop();
+    </script>
+</body>
+</html>
